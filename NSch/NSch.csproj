@@ -2,14 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageId>NSch.Port</PackageId>
+    <Product>NSch.Port</Product>
+    <Description>a simple port to .netstandard2.0</Description>
+    <Copyright>NSch</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/TetradogOther/NSch</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TetradogOther/NSch</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Security" Version="5.4.0.201" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Sharpen\Sharpen\Sharpen.csproj" />
+    <PackageReference Include="Sharpen.Port" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
