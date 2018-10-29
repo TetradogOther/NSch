@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Mono.Math.Port" Version="1.0.0" />
+    <PackageReference Include="Mono.Xml.Port" Version="1.0.0" />
     <PackageReference Include="Sharpen.Port" Version="1.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
   </ItemGroup>

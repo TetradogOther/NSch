@@ -28,6 +28,7 @@ using System;
 using System.Security.Cryptography;
 
 using Mono.Math;
+using Mono.Security.Cryptography;
 
 namespace Sharpen
 {
