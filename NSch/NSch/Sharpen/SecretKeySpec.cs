@@ -29,7 +29,7 @@ namespace Sharpen
 {
 	public class SecretKeySpec: KeySpec, Key
 	{
-		public SecretKeySpec (byte[] key, string type)
+		public SecretKeySpec (byte[] key, string type=null)
 		{
 			this.Key = key;
 		}

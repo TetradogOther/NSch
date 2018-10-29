@@ -26,128 +26,138 @@
 using System;
 using System.Security.Cryptography;
 using System.IO;
-using Mono.Security.Cryptography;
+
 
 namespace Sharpen
 {
-	public abstract class Signature
-	{
-		public Signature ()
-		{
-		}
-		
-		public static Signature GetInstance (string id)
-		{
-			switch (id) {
-			case "SHA1withDSA": return new SHA1withDSASignature ();
-			case "SHA1withRSA": return new SHA1withRSASignature ();
-			}
-			throw new NotSupportedException ();
-		}
-		
-		public abstract byte[] Sign ();
-		
-		public abstract void Update (byte[] data);
-		
-		public abstract void InitSign (PrivateKey key);
-		
-		public abstract void InitVerify (PublicKey key);
-		
-		public abstract bool Verify (byte[] data);
-	}
-	
-	class SHA1withRSASignature: Signature
-	{
-		RSAManaged rsa = new RSAManaged ();
-		MemoryStream ms = new MemoryStream ();
-		
-		public override byte[] Sign ()
-		{
-			try {
-				ms.Position = 0;
-				HashAlgorithm hash = HashAlgorithm.Create ("SHA1");
-				byte[] toBeSigned = hash.ComputeHash (ms);
-				ms = new MemoryStream ();
-				return PKCS1.Sign_v15 (rsa, hash, toBeSigned);
-				
-//				byte[] res = rsa.SignData (ms, "sha1");
-//				return res;
-			} catch (Exception ex) {
-				Console.WriteLine (ex);
-				throw;
-			}
-		}
-		
-		public override void Update (byte[] data)
-		{
-			ms.Write (data, 0, data.Length);
-		}
-		
-		public override void InitSign (PrivateKey key)
-		{
-			try {
-				rsa.ImportParameters (((RSAPrivateKey)key).Parameters);
-			} catch (Exception ex) {
-				Console.WriteLine (ex);
-				throw;
-			}
-		}
-		
-		public override void InitVerify (PublicKey key)
-		{
-			rsa.ImportParameters (((RSAPublicKey)key).Parameters);
-		}
-		
-		public override bool Verify (byte[] signature)
-		{
-			HashAlgorithm hash = HashAlgorithm.Create ("SHA1");
-			byte[] toBeVerified = hash.ComputeHash (ms.ToArray ());
-			return PKCS1.Verify_v15 (rsa, hash, toBeVerified, signature);
-//			return rsa.VerifyData (ms.ToArray (), "SHA1", signature);
-		}
-		
-		static byte[] CB (sbyte[] si)
-		{
-			byte[] s = new byte [si.Length];
-			for (int n=0; n<si.Length; n++)
-				s[n] = (byte)si[n];
-			return s;
-		}
-	}
-	
-	class SHA1withDSASignature : Signature
-	{
-		DSACryptoServiceProvider sa = new DSACryptoServiceProvider ();
-		MemoryStream ms = new MemoryStream ();
-		
-		public override byte[] Sign ()
-		{
-			ms.Position = 0;
-			byte[] res = sa.SignData (ms);
-			ms = new MemoryStream ();
-			return res;
-		}
-		
-		public override void Update (byte[] data)
-		{
-			ms.Write (data, 0, data.Length);
-		}
-		
-		public override void InitSign (PrivateKey key)
-		{
-			sa.ImportParameters (((DSAPrivateKey)key).Parameters);
-		}
-		
-		public override void InitVerify (PublicKey key)
-		{
-			sa.ImportParameters (((DSAPublicKey)key).Parameters);
-		}
-		
-		public override bool Verify (byte[] signature)
-		{
-			return sa.VerifyData (ms.ToArray (), signature);
-		}
+    public abstract class Signature
+    {
+        public Signature()
+        {
+        }
 
-	}
+        public static Signature GetInstance(string id)
+        {
+            Signature signature;
+            switch (id)
+            {
+                case "SHA1withDSA": signature = new SHA1withDSASignature(); break;
+                case "SHA1withRSA": signature = new SHA1withRSASignature(); break;
+                default: throw new NotSupportedException();
+            }
+            return signature;
+        }
+
+        public abstract byte[] Sign();
+
+        public abstract void Update(byte[] data);
+
+        public abstract void InitSign(PrivateKey key);
+
+        public abstract void InitVerify(PublicKey key);
+
+        public abstract bool Verify(byte[] data);
+    }
+
+    class SHA1withRSASignature : Signature
+    {
+        System.Security.Cryptography.RSA rsa;
+
+        MemoryStream ms = new MemoryStream();
+
+        public override byte[] Sign()
+        {
+            try
+            {
+                ms.Position = 0;
+                HashAlgorithm hash = HashAlgorithm.Create("SHA1");
+                byte[] toBeSigned = hash.ComputeHash(ms);
+                ms = new MemoryStream();
+                //return PKCS1.Sign_v15(rsa, hash, toBeSigned);
+
+                byte[] res = rsa.SignData(toBeSigned,0,toBeSigned.Length, new HashAlgorithmName( "sha1"),RSASignaturePadding.Pkcs1);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public override void Update(byte[] data)
+        {
+            ms.Write(data, 0, data.Length);
+        }
+
+        public override void InitSign(PrivateKey key)
+        {
+            try
+            {
+                rsa.ImportParameters(((RSAPrivateKey)key).Parameters);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public override void InitVerify(PublicKey key)
+        {
+            rsa.ImportParameters(((RSAPublicKey)key).Parameters);
+        }
+
+        public override bool Verify(byte[] signature)
+        {
+            HashAlgorithm hash = HashAlgorithm.Create("SHA1");
+            byte[] toBeVerified = hash.ComputeHash(ms.ToArray());
+            //return  PKCS1.Verify_v15 (rsa, hash, toBeVerified, signature);
+            return rsa.VerifyData(ms.ToArray(), signature,new HashAlgorithmName( "SHA1"),RSASignaturePadding.Pkcs1);
+        }
+
+        static byte[] CB(sbyte[] si)
+        {
+            byte[] s = new byte[si.Length];
+            for (int n = 0; n < si.Length; n++)
+                s[n] = (byte)si[n];
+            return s;
+        }
+    }
+
+    class SHA1withDSASignature : Signature
+    {
+        DSACryptoServiceProvider sa = new DSACryptoServiceProvider();
+        MemoryStream ms = new MemoryStream();
+
+        public override byte[] Sign()
+        {
+            ms.Position = 0;
+            byte[] res = sa.SignData(ms);
+            ms = new MemoryStream();
+            return res;
+        }
+
+        public override void Update(byte[] data)
+        {
+            ms.Write(data, 0, data.Length);
+        }
+
+        public override void InitSign(PrivateKey key)
+        {
+            sa.ImportParameters(((DSAPrivateKey)key).Parameters);
+        }
+
+        public override void InitVerify(PublicKey key)
+        {
+            sa.ImportParameters(((DSAPublicKey)key).Parameters);
+        }
+
+        public override bool Verify(byte[] signature)
+        {
+            return sa.VerifyData(ms.ToArray(), signature);
+        }
+
+    }
 }
 

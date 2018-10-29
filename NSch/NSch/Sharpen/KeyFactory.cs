@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using System.Security.Cryptography;
-using Mono.Security.Cryptography;
 using Mono.Math;
 
 namespace Sharpen
